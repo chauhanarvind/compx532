@@ -12,13 +12,13 @@ import {
 } from "recharts";
 
 interface BarChartStackedProps {
-  data: Record<string, any>[]; // Each object like { period: "Mar 2025", Credit: 1200, Debit: 800 }
+  data: Record<string, any>[];
   onBarClick?: (label: string) => void;
 }
 
 const COLORS = {
-  Credit: "#16a34a", // green-600
-  Debit: "#dc2626", // red-600
+  Credit: "#16a34a",
+  Debit: "#dc2626",
 };
 
 export default function BarChartStacked({

@@ -12,14 +12,14 @@ import {
 } from "recharts";
 
 interface AreaChartStackedProps {
-  data: Record<string, any>[]; // e.g., { period: "Mar 2025", Credit: 1500, Debit: 700 }
-  categories: ("Credit" | "Debit")[]; // explicitly only these two
+  data: Record<string, any>[];
+  categories: ("Credit" | "Debit")[];
   onAreaClick?: (label: string) => void;
 }
 
 const COLORS = {
-  Credit: "#16a34a", // green-600
-  Debit: "#dc2626", // red-600
+  Credit: "#16a34a",
+  Debit: "#dc2626",
 };
 
 export default function AreaChartStacked({
