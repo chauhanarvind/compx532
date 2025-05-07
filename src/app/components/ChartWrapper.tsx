@@ -19,9 +19,9 @@ export type ChartType = "bar" | "area";
 
 interface ChartWrapperProps {
   barData: { period: string; total: number }[];
-  areaData: Record<string, any>[];
+  areaData: Record<string, any>[]; // Contains Credit, Debit
   tooltipMap: Record<string, Record<string, number>>;
-  categories: string[];
+  categories: string[]; // ["Credit", "Debit"]
   groupBy: GroupBy;
   setGroupBy: (val: GroupBy) => void;
   selectedPeriod: string | null;
@@ -40,8 +40,6 @@ export default function ChartWrapper({
 }: ChartWrapperProps) {
   const [chartType, setChartType] = useState<ChartType>("bar");
 
-  const chartData = chartType === "bar" ? barData : areaData;
-
   const memoizedChart = useMemo(() => {
     return chartType === "bar" ? (
       <BarChartStacked
@@ -56,7 +54,7 @@ export default function ChartWrapper({
         onAreaClick={setSelectedPeriod}
       />
     );
-  }, [barData, areaData, chartType, categories, setSelectedPeriod]);
+  }, [areaData, chartType, categories, setSelectedPeriod]);
 
   return (
     <Card>
@@ -75,6 +73,7 @@ export default function ChartWrapper({
               <SelectItem value="weekly">Weekly</SelectItem>
             </SelectContent>
           </Select>
+
           <Select
             value={chartType}
             onValueChange={(val) => setChartType(val as ChartType)}
@@ -89,14 +88,15 @@ export default function ChartWrapper({
           </Select>
         </div>
       </CardHeader>
+
       <CardContent>
-        {chartData.length === 0 ? (
+        {areaData.length === 0 ? (
           <div className="flex justify-center items-center h-64">
             <Spinner size={28} />
           </div>
         ) : (
           <ScrollableChartContainer
-            data={chartData}
+            data={areaData}
             renderChart={() => memoizedChart}
           />
         )}

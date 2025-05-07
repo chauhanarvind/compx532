@@ -1,6 +1,5 @@
 "use client";
 
-import { chartColors } from "@/lib/chartColors";
 import {
   AreaChart,
   Area,
@@ -13,10 +12,15 @@ import {
 } from "recharts";
 
 interface AreaChartStackedProps {
-  data: Record<string, any>[]; // Example: [{ period: "Mar 2025", Food: 120, Rent: 400, ... }]
-  categories: string[];
+  data: Record<string, any>[]; // e.g., { period: "Mar 2025", Credit: 1500, Debit: 700 }
+  categories: ("Credit" | "Debit")[]; // explicitly only these two
   onAreaClick?: (label: string) => void;
 }
+
+const COLORS = {
+  Credit: "#16a34a", // green-600
+  Debit: "#dc2626", // red-600
+};
 
 export default function AreaChartStacked({
   data,
@@ -27,22 +31,20 @@ export default function AreaChartStacked({
     <ResponsiveContainer width="100%" height={350}>
       <AreaChart data={data} onClick={(e) => onAreaClick?.(e.activeLabel)}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="period" interval="preserveStartEnd" />
+        <XAxis dataKey="period" />
         <YAxis />
         <Tooltip
-          formatter={(value: any) =>
-            typeof value === "number" ? `$${value.toFixed(2)}` : value
-          }
+          formatter={(value: any) => `$${parseFloat(value).toFixed(2)}`}
         />
         <Legend />
-        {categories.map((cat, index) => (
+        {categories.map((cat) => (
           <Area
             key={cat}
             type="monotone"
             dataKey={cat}
             stackId="1"
-            stroke={chartColors[index % chartColors.length]}
-            fill={chartColors[index % chartColors.length]}
+            stroke={COLORS[cat]}
+            fill={COLORS[cat]}
           />
         ))}
       </AreaChart>

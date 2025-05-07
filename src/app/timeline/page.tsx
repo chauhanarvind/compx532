@@ -6,6 +6,12 @@ import { Transaction, useGroupedData } from "@/lib/useGroupedData";
 import ChartWrapper from "../components/ChartWrapper";
 import DrilldownModal from "../components/DrillDownModal";
 
+const isValidTransactionRow = (row: any) => {
+  if (!row.date || !row.amount || isNaN(Number(row.amount))) return false;
+  const parsedDate = new Date(row.date);
+  return parsedDate.toString() !== "Invalid Date";
+};
+
 export default function TimelinePage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [groupBy, setGroupBy] = useState<"monthly" | "weekly">("monthly");
@@ -18,11 +24,11 @@ export default function TimelinePage() {
       skipEmptyLines: true,
       complete: ({ data }) => {
         const parsed: Transaction[] = data.map((t: any) => {
+          const [day, month, year] = t.date.split("-").map(Number);
           const amt = parseFloat(t.amount);
-          const [day, month, year] = t.date.split("-");
-          const parsedDate = new Date(`${year}-${month}-${day}`);
+
           return {
-            date: parsedDate,
+            date: new Date(year, month - 1, day), // Correct order!
             account: t.account,
             category: t.Category || "Uncategorized",
             description: t.description || "",
@@ -30,15 +36,13 @@ export default function TimelinePage() {
             type: amt < 0 ? "Debit" : "Credit",
           };
         });
+
         setTransactions(parsed);
       },
     });
   }, []);
 
-  const categories = useMemo(
-    () => [...new Set(transactions.map((t) => t.category))],
-    [transactions]
-  );
+  const categories = useMemo(() => ["Credit", "Debit"], []);
 
   const { barData, tooltipMap, areaData } = useGroupedData(
     transactions,

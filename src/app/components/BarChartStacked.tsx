@@ -10,17 +10,19 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { chartColors } from "@/lib/chartColors";
 
 interface BarChartStackedProps {
-  data: Record<string, any>[]; // Example: [{ period: "Mar 2025", Food: 120, Rent: 400, ... }]
-  categories: string[];
+  data: Record<string, any>[]; // Each object like { period: "Mar 2025", Credit: 1200, Debit: 800 }
   onBarClick?: (label: string) => void;
 }
 
+const COLORS = {
+  Credit: "#16a34a", // green-600
+  Debit: "#dc2626", // red-600
+};
+
 export default function BarChartStacked({
   data,
-  categories,
   onBarClick,
 }: BarChartStackedProps) {
   return (
@@ -35,14 +37,8 @@ export default function BarChartStacked({
           }
         />
         <Legend />
-        {categories.map((cat, index) => (
-          <Bar
-            key={cat}
-            dataKey={cat}
-            stackId="1"
-            fill={chartColors[index % chartColors.length]}
-          />
-        ))}
+        <Bar dataKey="Credit" stackId="1" fill={COLORS.Credit} />
+        <Bar dataKey="Debit" stackId="1" fill={COLORS.Debit} />
       </BarChart>
     </ResponsiveContainer>
   );

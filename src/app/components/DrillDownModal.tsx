@@ -66,7 +66,7 @@ export default function DrilldownModal({
                     </div>
                   </div>
                   <div className="text-right text-muted-foreground text-xs">
-                    {t.date.toLocaleDateString()}
+                    {t.date.toLocaleDateString("en-GB")}
                   </div>
                 </div>
               </li>
