@@ -40,6 +40,8 @@ export default function ChartWrapper({
 }: ChartWrapperProps) {
   const [chartType, setChartType] = useState<ChartType>("bar");
 
+  const chartData = chartType === "bar" ? barData : areaData;
+
   const memoizedChart = useMemo(() => {
     return chartType === "bar" ? (
       <BarChartStacked
@@ -54,7 +56,7 @@ export default function ChartWrapper({
         onAreaClick={setSelectedPeriod}
       />
     );
-  }, [areaData, chartType, categories, setSelectedPeriod]);
+  }, [barData, areaData, chartType, categories, setSelectedPeriod]);
 
   return (
     <Card>
@@ -88,13 +90,13 @@ export default function ChartWrapper({
         </div>
       </CardHeader>
       <CardContent>
-        {areaData.length === 0 ? (
+        {chartData.length === 0 ? (
           <div className="flex justify-center items-center h-64">
             <Spinner size={28} />
           </div>
         ) : (
           <ScrollableChartContainer
-            data={areaData}
+            data={chartData}
             renderChart={() => memoizedChart}
           />
         )}

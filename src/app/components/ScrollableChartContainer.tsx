@@ -1,80 +1,69 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Spinner from "./Spinner";
+import { Loader2 } from "lucide-react";
 
 interface ScrollableChartContainerProps<T> {
   data: T[];
   renderChart: (data: T[]) => React.ReactNode;
   step?: number;
   initialCount?: number;
-  maxCount?: number;
 }
 
 export default function ScrollableChartContainer<T>({
   data,
   renderChart,
-  step = 20,
-  initialCount = 20,
-  maxCount = 100,
+  step = 15,
+  initialCount = 15,
 }: ScrollableChartContainerProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState(initialCount);
-  const [isLoading, setIsLoading] = useState(initialCount < data.length);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Initial loading spinner on first render
-  useEffect(() => {
-    if (initialCount < data.length) {
-      const t = setTimeout(() => setIsLoading(false), 300);
-      return () => clearTimeout(t);
-    }
-  }, [initialCount, data.length]);
-
-  // Horizontal scroll loader
   useEffect(() => {
     const handleScroll = () => {
-      if (!containerRef.current) return;
-      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+      const container = containerRef.current;
+      if (!container) return;
 
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+
+      // Load more if scrolled to within 100px of the right edge
       if (
         scrollLeft + clientWidth >= scrollWidth - 100 &&
-        visibleCount < Math.min(data.length, maxCount)
+        visibleCount < data.length &&
+        !loading
       ) {
-        if (timeoutRef.current) return;
-        setIsLoading(true);
-        timeoutRef.current = setTimeout(() => {
-          setVisibleCount((prev) => Math.min(prev + step, maxCount));
-          setIsLoading(false);
-          timeoutRef.current = null;
-        }, 300);
+        setLoading(true);
+        setTimeout(() => {
+          setVisibleCount((prev) => Math.min(prev + step, data.length));
+          setLoading(false);
+        }, 300); // Simulated loading delay
       }
     };
 
-    const ref = containerRef.current;
-    ref?.addEventListener("scroll", handleScroll);
-    return () => ref?.removeEventListener("scroll", handleScroll);
-  }, [visibleCount, step, maxCount, data.length]);
+    const currentRef = containerRef.current;
+    currentRef?.addEventListener("scroll", handleScroll);
+    return () => currentRef?.removeEventListener("scroll", handleScroll);
+  }, [data.length, step, visibleCount, loading]);
 
   const visibleData = data.slice(0, visibleCount);
 
   return (
     <div className="relative">
-      <div className="flex border rounded-md overflow-hidden">
-        <div
-          ref={containerRef}
-          className="overflow-x-auto w-full"
-          style={{ paddingBottom: "8px" }}
-        >
-          <div style={{ minWidth: `${visibleData.length * 80}px` }}>
-            {renderChart(visibleData)}
-          </div>
+      <div
+        ref={containerRef}
+        className="overflow-x-auto border rounded-md"
+        style={{ paddingBottom: "8px" }}
+      >
+        <div style={{ minWidth: `${visibleData.length * 80}px` }}>
+          {renderChart(visibleData)}
         </div>
       </div>
 
-      {isLoading && (
-        <div className="absolute bottom-2 right-4 z-10">
-          <Spinner size={20} />
+      {loading && (
+        <div className="absolute bottom-0 right-2 flex items-center justify-end text-muted-foreground text-xs pr-2 pt-1">
+          <Loader2 className="animate-spin w-4 h-4 mr-1" />
+          Loading more…
         </div>
       )}
     </div>

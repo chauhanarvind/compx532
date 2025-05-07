@@ -24,6 +24,19 @@ interface DrilldownModalProps {
   groupBy: "monthly" | "weekly";
 }
 
+const getLabelForDate = (date: Date, groupBy: "monthly" | "weekly") => {
+  return groupBy === "monthly"
+    ? date.toLocaleString("default", {
+        month: "short",
+        year: "numeric",
+      })
+    : `Week of ${date.toLocaleDateString("default", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      })}`;
+};
+
 export default function DrilldownModal({
   open,
   onClose,
@@ -31,22 +44,9 @@ export default function DrilldownModal({
   transactions,
   groupBy,
 }: DrilldownModalProps) {
-  const filtered = transactions.filter((t) => {
-    const month = t.date.toLocaleString("default", {
-      month: "short",
-      year: "numeric",
-    });
-
-    const weekLabel = `Week of ${t.date.toLocaleDateString("default", {
-      month: "short",
-      day: "2-digit",
-      year: "numeric",
-    })}`;
-
-    return groupBy === "monthly"
-      ? selectedPeriod === month
-      : selectedPeriod === weekLabel;
-  });
+  const filtered = transactions
+    .filter((t) => getLabelForDate(t.date, groupBy) === selectedPeriod)
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

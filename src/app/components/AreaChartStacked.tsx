@@ -13,7 +13,7 @@ import {
 } from "recharts";
 
 interface AreaChartStackedProps {
-  data: Record<string, any>[];
+  data: Record<string, any>[]; // Example: [{ period: "Mar 2025", Food: 120, Rent: 400, ... }]
   categories: string[];
   onAreaClick?: (label: string) => void;
 }
@@ -27,10 +27,12 @@ export default function AreaChartStacked({
     <ResponsiveContainer width="100%" height={350}>
       <AreaChart data={data} onClick={(e) => onAreaClick?.(e.activeLabel)}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="period" />
+        <XAxis dataKey="period" interval="preserveStartEnd" />
         <YAxis />
         <Tooltip
-          formatter={(value: any) => `$${parseFloat(value).toFixed(2)}`}
+          formatter={(value: any) =>
+            typeof value === "number" ? `$${value.toFixed(2)}` : value
+          }
         />
         <Legend />
         {categories.map((cat, index) => (

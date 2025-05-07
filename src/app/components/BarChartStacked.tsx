@@ -13,7 +13,7 @@ import {
 import { chartColors } from "@/lib/chartColors";
 
 interface BarChartStackedProps {
-  data: Record<string, any>[]; // Each object like { period: "Mar 2025", Food: 120, Rent: 400, ... }
+  data: Record<string, any>[]; // Example: [{ period: "Mar 2025", Food: 120, Rent: 400, ... }]
   categories: string[];
   onBarClick?: (label: string) => void;
 }
@@ -35,12 +35,12 @@ export default function BarChartStacked({
           }
         />
         <Legend />
-        {categories.map((cat, i) => (
+        {categories.map((cat, index) => (
           <Bar
             key={cat}
             dataKey={cat}
             stackId="1"
-            fill={chartColors[i % chartColors.length]}
+            fill={chartColors[index % chartColors.length]}
           />
         ))}
       </BarChart>
