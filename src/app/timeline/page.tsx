@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Transaction, useGroupedData } from "@/lib/useGroupedData";
 import ChartWrapper from "../components/ChartWrapper";
 import DrilldownModal from "../components/DrillDownModal";
+import PageNavButton from "../components/PageNavButton";
 
 const isValidTransactionRow = (row: any) => {
   if (!row.date || !row.amount || isNaN(Number(row.amount))) return false;
@@ -51,7 +52,10 @@ export default function TimelinePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold">📊 Timeline View</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">📊 Timeline View</h1>
+        <PageNavButton />
+      </div>
 
       <ChartWrapper
         barData={barData}

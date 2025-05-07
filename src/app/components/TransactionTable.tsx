@@ -13,6 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TransactionTableFilters from "./TransactionTableFilters";
 import { sortTransactionsByDate } from "@/lib/sortByDate";
+import PageNavButton from "./PageNavButton";
 
 export interface Transaction {
   date: string;
@@ -134,7 +135,10 @@ export default function TransactionTable() {
 
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold">📋 Transactions Table</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">📋 Transactions Table</h1>
+        <PageNavButton />
+      </div>
 
       {/* Summary Section */}
       <div className="max-w-xs">
