@@ -6,12 +6,7 @@ import { Transaction, useGroupedData } from "@/lib/useGroupedData";
 import ChartWrapper from "../components/ChartWrapper";
 import DrilldownModal from "../components/DrillDownModal";
 import PageNavButton from "../components/PageNavButton";
-
-const isValidTransactionRow = (row: any) => {
-  if (!row.date || !row.amount || isNaN(Number(row.amount))) return false;
-  const parsedDate = new Date(row.date);
-  return parsedDate.toString() !== "Invalid Date";
-};
+import { RawData } from "../components/TransactionTable";
 
 export default function TimelinePage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -24,9 +19,9 @@ export default function TimelinePage() {
       header: true,
       skipEmptyLines: true,
       complete: ({ data }) => {
-        const parsed: Transaction[] = data.map((t: any) => {
+        const parsed: Transaction[] = (data as RawData[]).map((t) => {
           const [day, month, year] = t.date.split("-").map(Number);
-          const amt = parseFloat(t.amount);
+          const amt = parseFloat(t.amount as unknown as string);
 
           return {
             date: new Date(year, month - 1, day), // Correct order!
@@ -45,10 +40,7 @@ export default function TimelinePage() {
 
   const categories = useMemo(() => ["Credit", "Debit"], []);
 
-  const { barData, tooltipMap, areaData } = useGroupedData(
-    transactions,
-    groupBy
-  );
+  const { tooltipMap, areaData } = useGroupedData(transactions, groupBy);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
@@ -58,7 +50,6 @@ export default function TimelinePage() {
       </div>
 
       <ChartWrapper
-        barData={barData}
         tooltipMap={tooltipMap}
         areaData={areaData}
         categories={categories}

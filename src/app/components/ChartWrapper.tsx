@@ -9,7 +9,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import AreaChartStacked from "./AreaChartStacked";
+import AreaChartStacked, { ChartData } from "./AreaChartStacked";
 import ScrollableChartContainer from "./ScrollableChartContainer";
 import BarChartStacked from "./BarChartStacked";
 import Spinner from "./Spinner";
@@ -18,8 +18,7 @@ export type GroupBy = "monthly" | "weekly";
 export type ChartType = "bar" | "area";
 
 interface ChartWrapperProps {
-  barData: { period: string; total: number }[];
-  areaData: Record<string, any>[]; // Contains Credit, Debit
+  areaData: ChartData[]; // Contains Credit, Debit
   tooltipMap: Record<string, Record<string, number>>;
   categories: string[]; // ["Credit", "Debit"]
   groupBy: GroupBy;
@@ -29,32 +28,20 @@ interface ChartWrapperProps {
 }
 
 export default function ChartWrapper({
-  barData,
   areaData,
-  tooltipMap,
-  categories,
   groupBy,
   setGroupBy,
-  selectedPeriod,
   setSelectedPeriod,
 }: ChartWrapperProps) {
   const [chartType, setChartType] = useState<ChartType>("bar");
 
   const memoizedChart = useMemo(() => {
     return chartType === "bar" ? (
-      <BarChartStacked
-        data={areaData}
-        categories={categories}
-        onBarClick={setSelectedPeriod}
-      />
+      <BarChartStacked data={areaData} onBarClick={setSelectedPeriod} />
     ) : (
-      <AreaChartStacked
-        data={areaData}
-        categories={categories}
-        onAreaClick={setSelectedPeriod}
-      />
+      <AreaChartStacked data={areaData} onAreaClick={setSelectedPeriod} />
     );
-  }, [areaData, chartType, categories, setSelectedPeriod]);
+  }, [areaData, chartType, setSelectedPeriod]);
 
   return (
     <Card>

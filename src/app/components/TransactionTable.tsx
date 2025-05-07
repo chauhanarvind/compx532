@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TransactionTableFilters from "./TransactionTableFilters";
-import { sortTransactionsByDate } from "@/lib/sortByDate";
 import PageNavButton from "./PageNavButton";
+import { sortTransactionsByDate } from "@/lib/sortByDate";
 
 export interface Transaction {
   date: string;
@@ -23,6 +23,25 @@ export interface Transaction {
   amount: number;
   incomeOrExpense: "Credit" | "Debit";
 }
+
+export interface RawData {
+  date: string;
+  account: string;
+  Category: string;
+  description: string;
+  amount: number;
+}
+
+const monthMap = {
+  "1m": 0,
+  "3m": 2,
+  "6m": 5,
+  "1y": 11,
+  "2y": 23,
+  "3y": 35,
+} as const;
+
+type AllowedMonthKey = keyof typeof monthMap;
 
 const parseDDMMYYYY = (dateStr: string): Date => {
   const [day, month, year] = dateStr.split("-").map(Number);
@@ -44,8 +63,8 @@ export default function TransactionTable() {
       header: true,
       skipEmptyLines: true,
       complete: ({ data }) => {
-        const parsed: Transaction[] = data.map((t: any) => {
-          const amt = parseFloat(t.amount);
+        const parsed: Transaction[] = (data as RawData[]).map((t) => {
+          const amt = parseFloat(t.amount as unknown as string);
           return {
             date: t.date,
             account: t.account,
@@ -56,15 +75,14 @@ export default function TransactionTable() {
           };
         });
 
-        const sorted = sortTransactionsByDate(parsed, "desc");
-        setTransactions(sorted);
+        setTransactions(sortTransactionsByDate(parsed, "desc"));
       },
     });
   }, []);
 
   useEffect(() => {
     setRowsToShow(50);
-  }, [selectedMonth, selectedCategory, selectedType]);
+  }, [selectedCategory, selectedType, selectedMonth]);
 
   const uniqueCategories = useMemo(
     () => ["All", ...new Set(transactions.map((t) => t.category))],
@@ -72,41 +90,25 @@ export default function TransactionTable() {
   );
 
   const filteredTransactions = useMemo(() => {
-    if (transactions.length === 0) return [];
+    if (!transactions.length) return [];
 
     const latestTxDate = parseDDMMYYYY(transactions[0].date);
 
     return transactions.filter((t) => {
+      const txDate = parseDDMMYYYY(t.date);
+      const monthsDiff =
+        (latestTxDate.getFullYear() - txDate.getFullYear()) * 12 +
+        (latestTxDate.getMonth() - txDate.getMonth());
+
+      const allowedMonths = monthMap[selectedMonth as AllowedMonthKey];
+
       const categoryMatch =
         selectedCategory === "All" || t.category === selectedCategory;
       const typeMatch =
         selectedType === "All" || t.incomeOrExpense === selectedType;
-
-      let dateMatch = true;
-      if (selectedMonth !== "All") {
-        const txDate = parseDDMMYYYY(t.date);
-
-        const txMonth = txDate.getMonth();
-        const txYear = txDate.getFullYear();
-        const latestMonth = latestTxDate.getMonth();
-        const latestYear = latestTxDate.getFullYear();
-
-        const monthsDiff = (latestYear - txYear) * 12 + (latestMonth - txMonth);
-
-        const allowedMonths = {
-          "1m": 0,
-          "3m": 2,
-          "6m": 5,
-          "1y": 11,
-          "2y": 23,
-          "3y": 35,
-        }[selectedMonth as keyof typeof allowedMonths];
-
-        dateMatch =
-          typeof allowedMonths === "number"
-            ? monthsDiff <= allowedMonths
-            : true;
-      }
+      const dateMatch =
+        selectedMonth === "All" ||
+        (typeof allowedMonths === "number" && monthsDiff <= allowedMonths);
 
       return categoryMatch && typeMatch && dateMatch;
     });
@@ -141,8 +143,8 @@ export default function TransactionTable() {
       </div>
 
       {/* Summary Section */}
-      <div className="max-w-xs">
-        <Card>
+      <div className="flex gap-4 flex-wrap">
+        <Card className="flex-1 min-w-[180px]">
           <CardHeader>
             <CardTitle
               className={netBalance >= 0 ? "text-green-700" : "text-red-700"}
@@ -152,6 +154,24 @@ export default function TransactionTable() {
           </CardHeader>
           <CardContent>
             <p className="text-xl font-semibold">${netBalance.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="flex-1 min-w-[180px]">
+          <CardHeader>
+            <CardTitle className="text-green-700">Total Credit</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl font-semibold">${totalCredit.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="flex-1 min-w-[180px]">
+          <CardHeader>
+            <CardTitle className="text-red-700">Total Debit</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl font-semibold">${totalDebit.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>

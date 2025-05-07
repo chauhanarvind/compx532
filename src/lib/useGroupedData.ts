@@ -49,15 +49,18 @@ export function useGroupedData(transactions: Transaction[], groupBy: GroupBy) {
       map[label][t.type] += t.amount;
     });
 
-    return Object.entries(map)
-      .map(([period, { Credit, Debit, _dateKey }]) => ({
-        period,
-        Credit: parseFloat(Credit.toFixed(2)),
-        Debit: parseFloat(Debit.toFixed(2)),
-        _dateKey,
-      }))
-      .sort((a, b) => b._dateKey.getTime() - a._dateKey.getTime())
-      .map(({ _dateKey, ...rest }) => rest); // Strip _dateKey before returning
+    return (
+      Object.entries(map)
+        .map(([period, { Credit, Debit, _dateKey }]) => ({
+          period,
+          Credit: parseFloat(Credit.toFixed(2)),
+          Debit: parseFloat(Debit.toFixed(2)),
+          _dateKey,
+        }))
+        .sort((a, b) => b._dateKey.getTime() - a._dateKey.getTime())
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .map(({ _dateKey, ...rest }) => rest)
+    ); // Strip _dateKey before returning
   }, [transactions, groupBy]);
 
   const tooltipMap = useMemo(() => {

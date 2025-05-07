@@ -29,32 +29,34 @@ export default function TransactionTableFilters({
 }: Props) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {/* Category */}
+      {/* Category Filter */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">Category</label>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Category" />
+            <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
-            {uniqueCategories.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
+            {uniqueCategories.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Type */}
+      {/* Type Filter */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">Type</label>
         <Select
           value={selectedType}
-          onValueChange={(val) => setSelectedType(val as any)}
+          onValueChange={(val: "All" | "Credit" | "Debit") =>
+            setSelectedType(val)
+          }
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Type" />
+            <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="All">All</SelectItem>
@@ -64,12 +66,12 @@ export default function TransactionTableFilters({
         </Select>
       </div>
 
-      {/* Month */}
+      {/* Month Filter */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">Date Range</label>
         <Select value={selectedMonth} onValueChange={setSelectedMonth}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Month" />
+            <SelectValue placeholder="Select range" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="All">All time</SelectItem>

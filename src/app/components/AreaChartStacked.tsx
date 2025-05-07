@@ -11,42 +11,52 @@ import {
   Legend,
 } from "recharts";
 
+export interface ChartData {
+  period: string;
+  Credit?: number;
+  Debit?: number;
+}
+
 interface AreaChartStackedProps {
-  data: Record<string, any>[];
-  categories: ("Credit" | "Debit")[];
+  data: ChartData[];
   onAreaClick?: (label: string) => void;
 }
 
-const COLORS = {
-  Credit: "#16a34a",
-  Debit: "#dc2626",
-};
-
 export default function AreaChartStacked({
   data,
-  categories,
   onAreaClick,
 }: AreaChartStackedProps) {
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <AreaChart data={data} onClick={(e) => onAreaClick?.(e.activeLabel)}>
+      <AreaChart
+        data={data}
+        onClick={(e) =>
+          e && e.activeLabel ? onAreaClick?.(e.activeLabel as string) : null
+        }
+      >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="period" />
         <YAxis />
         <Tooltip
-          formatter={(value: any) => `$${parseFloat(value).toFixed(2)}`}
+          formatter={(value: number) =>
+            typeof value === "number" ? `$${value.toFixed(2)}` : value
+          }
         />
         <Legend />
-        {categories.map((cat) => (
-          <Area
-            key={cat}
-            type="monotone"
-            dataKey={cat}
-            stackId="1"
-            stroke={COLORS[cat]}
-            fill={COLORS[cat]}
-          />
-        ))}
+        <Area
+          type="monotone"
+          dataKey="Credit"
+          stackId="1"
+          stroke="#16a34a"
+          fill="#16a34a"
+        />
+        <Area
+          type="monotone"
+          dataKey="Debit"
+          stackId="1"
+          stroke="#dc2626"
+          fill="#dc2626"
+        />
       </AreaChart>
     </ResponsiveContainer>
   );
